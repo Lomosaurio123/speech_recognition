@@ -4,7 +4,7 @@ import sounddevice as sd
 import wavio
 import tkinter as tk
 import sounddevice as sd
-from tensorflow.keras.models import load_model
+import tensorflow
 from tkinter import ttk
 
 def dispositivos_disponibles():
@@ -79,7 +79,7 @@ def prediccion(file_path, model):
     return(palabra_predicha)
 
 def processing():
-    model = load_model('modelo.h5')    
+    model = tensorflow.keras.models.load_model('modelo.h5')    
     predict = prediccion('record.wav', model)
 
     text_box = tk.Label(root, text='Palabra predicha: ' + predict, font=("Arial", 20))
