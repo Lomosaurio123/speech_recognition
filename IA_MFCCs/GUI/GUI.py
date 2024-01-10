@@ -3,7 +3,6 @@ import numpy as np
 import sounddevice as sd
 import wavio
 import tkinter as tk
-import sounddevice as sd
 import tensorflow
 from tkinter import ttk
 
@@ -26,13 +25,13 @@ def record():
     sd.wait()
     print('Grabación terminada, guardada como:', end=" ")
 
-    # Guarda la grabación como "audio.wav"
-    wavio.write('record.wav', grabacion, fs, sampwidth=2)
+    # Guarda la grabación como "record.wav"
+    wavio.write(path_record, grabacion, fs, sampwidth=2)
 
     print('record.wav')
 
 def play():
-    wav = wavio.read('record.wav')
+    wav = wavio.read(path_record)
     data = wav.data
     fs = wav.rate
     sd.play(data, fs)
@@ -54,9 +53,9 @@ def preprocess_audio(file_path,max_len):
         mfcc = mfcc[:, :max_len]
         return mfcc
 
-def prediccion(file_path, model):
+def prediccion(model):
     padding = 500
-    preprocessed_audio = preprocess_audio(file_path,padding)
+    preprocessed_audio = preprocess_audio(path_record,padding)
     preprocessed_audio = preprocessed_audio.reshape(1, preprocessed_audio.shape[0], preprocessed_audio.shape[1])  # Convertir a formato (1, features, tiempo)
     prediction = model.predict(preprocessed_audio)
 
@@ -79,14 +78,22 @@ def prediccion(file_path, model):
     return(palabra_predicha)
 
 def processing():
-    model = tensorflow.keras.models.load_model('modelo.h5')    
-    predict = prediccion('record.wav', model)
+    global text_box
 
-    text_box = tk.Label(root, text='Palabra predicha: ' + predict, font=("Arial", 20))
-    text_box.pack()
+    model = tensorflow.keras.models.load_model(path_model)    
+    predict = prediccion(model)
 
+    if text_box is None:
+        text_box = tk.Label(root, font=("Arial", 20)) 
+        text_box.pack()
+
+    text_box.config(text='Palabra predicha: ' + predict)
 
 #GUI=============================================================================================
+path_model = 'IA_MFCCs/GUI/modelo.h5'
+path_record = 'IA_MFCCs/GUI/record.wav'
+text_box = None
+
 root = tk.Tk()
 root.geometry("400x300")
 root.title("Proyecto Rec Voz")
