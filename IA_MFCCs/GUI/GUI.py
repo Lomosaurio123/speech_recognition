@@ -54,6 +54,7 @@ def preprocess_audio(file_path,max_len):
         return mfcc
 
 def prediccion(model):
+    score = ''
     padding = 500
     preprocessed_audio = preprocess_audio(path_record,padding)
     preprocessed_audio = preprocessed_audio.reshape(1, preprocessed_audio.shape[0], preprocessed_audio.shape[1])  # Convertir a formato (1, features, tiempo)
@@ -74,20 +75,21 @@ def prediccion(model):
         palabra_predicha = 'happy'
 
     print(f"\nLa palabra predicha es: {palabra_predicha}")
+    score = max(prediction[0]) * 100
 
-    return(palabra_predicha)
+    return(palabra_predicha,score)
 
 def processing():
     global text_box
 
     model = tensorflow.keras.models.load_model(path_model)    
-    predict = prediccion(model)
+    predict, score = prediccion(model)
 
     if text_box is None:
-        text_box = tk.Label(root, font=("Arial", 20)) 
+        text_box = tk.Label(root, font=("Arial", 12)) 
         text_box.pack()
 
-    text_box.config(text='Palabra predicha: ' + predict)
+    text_box.config(text=f'Palabra predicha: "{predict}" con un {score:.2f}% de precision')
 
 #GUI=============================================================================================
 path_model = 'IA_MFCCs/GUI/modelo.h5'
